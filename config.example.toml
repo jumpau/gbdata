@@ -1,0 +1,19 @@
+[telegram]
+api_id = 123456
+api_hash = "your_api_hash_here"
+session_string = "your_session_string_here"
+
+[export]
+source_channel = -1001234567890
+output_path = "./output"
+domain_prefix = "https://cdn.yourdomain.com/tg"
+batch_size = 50
+start_id = 1
+end_id = 10000
+
+[rss]
+title = "My Telegram Channel"
+link = "https://yourdomain.com/blog"
+description = "My channel backup"
+language = "zh-cn"
+image_url = "https://yourdomain.com/avatar.png"
