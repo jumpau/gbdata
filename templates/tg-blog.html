@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Channel Backup</title>
+    
+    <!-- Import Libraries -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .posts-container {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .post {
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .post:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .post-id {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .post-date {
+            opacity: 0.7;
+        }
+        
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .post-content p {
+            margin-bottom: 10px;
+        }
+        
+        .media-container {
+            margin: 15px 0;
+        }
+        
+        .media-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .media-container video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 5px;
+        }
+        
+        .media-container audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .file-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        
+        .file-link:hover {
+            background: #5a67d8;
+        }
+        
+        .forwarded-info {
+            background: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+        
+        .reply-info {
+            background: #edf2f7;
+            border-left: 3px solid #a0aec0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+        
+        .search-box {
+            padding: 20px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .spoiler {
+            background: #4a5568;
+            color: #4a5568;
+            padding: 2px 4px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .spoiler:hover {
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .post {
+                padding: 15px;
+            }
+            
+            .posts-container {
+                max-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fab fa-telegram-plane"></i> Telegram Channel</h1>
+                <p>备份与浏览</p>
+            </div>
+            
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="搜索消息内容..." 
+                    v-model="searchQuery"
+                >
+            </div>
+            
+            <div class="posts-container">
+                <div v-if="loading" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> 加载中...
+                </div>
+                
+                <div v-else-if="filteredPosts.length === 0" class="empty">
+                    <i class="fas fa-inbox"></i><br>
+                    暂无消息
+                </div>
+                
+                <div v-else>
+                    <div v-for="post in filteredPosts" :key="post.id" class="post">
+                        <div class="post-header">
+                            <span class="post-id">#{{ post.id }}</span>
+                            <span class="post-date">{{ formatDate(post.date) }}</span>
+                        </div>
+                        
+                        <div v-if="post.reply" class="reply-info">
+                            <strong>回复 #{{ post.reply.id }}:</strong>
+                            <div>{{ post.reply.text }}</div>
+                        </div>
+                        
+                        <div v-if="post.forwarded_from" class="forwarded-info">
+                            <i class="fas fa-share"></i>
+                            转发自: 
+                            <a v-if="post.forwarded_from.url" :href="post.forwarded_from.url" target="_blank">
+                                {{ post.forwarded_from.name }}
+                            </a>
+                            <span v-else>{{ post.forwarded_from.name }}</span>
+                        </div>
+                        
+                        <div v-if="post.text" class="post-content">
+                            <div v-html="formatText(post.text)"></div>
+                        </div>
+                        
+                        <div v-if="post.media" class="media-container">
+                            <img v-if="post.media.media_type === 'photo'" 
+                                 :src="post.media.permanent_url" 
+                                 :alt="post.media.original_name || 'Image'">
+                            
+                            <video v-else-if="['video_file', 'animation'].includes(post.media.media_type)" 
+                                   controls>
+                                <source :src="post.media.permanent_url" type="video/mp4">
+                            </video>
+                            
+                            <audio v-else-if="post.media.media_type === 'audio_file'" controls>
+                                <source :src="post.media.permanent_url" type="audio/mpeg">
+                            </audio>
+                            
+                            <a v-else 
+                               :href="post.media.permanent_url" 
+                               target="_blank" 
+                               class="file-link">
+                                <i class="fas fa-paperclip"></i>
+                                {{ post.media.original_name || '附件' }}
+                            </a>
+                        </div>
+                        
+                        <div v-if="post.images" class="media-container">
+                            <img v-for="(img, index) in post.images" 
+                                 :key="index"
+                                 :src="img.permanent_url" 
+                                 :alt="img.original_name || 'Image'">
+                        </div>
+                        
+                        <div v-if="post.files" class="media-container">
+                            <a v-for="(file, index) in post.files" 
+                               :key="index"
+                               :href="file.permanent_url" 
+                               target="_blank" 
+                               class="file-link">
+                                <i class="fas fa-file"></i>
+                                {{ file.original_name || '文件' }}
+                            </a>
+                        </div>
+                        
+                        <div v-if="post.views || post.forwards" class="post-stats">
+                            <div v-if="post.views" class="stat-item">
+                                <i class="fas fa-eye"></i>
+                                {{ post.views }}
+                            </div>
+                            <div v-if="post.forwards" class="stat-item">
+                                <i class="fas fa-share"></i>
+                                {{ post.forwards }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    posts: $$POSTS_DATA$$,
+                    searchQuery: '',
+                    loading: false
+                }
+            },
+            computed: {
+                filteredPosts() {
+                    if (!this.searchQuery) {
+                        return this.posts;
+                    }
+                    
+                    const query = this.searchQuery.toLowerCase();
+                    return this.posts.filter(post => {
+                        return (post.text && post.text.toLowerCase().includes(query)) ||
+                               (post.id && post.id.toString().includes(query));
+                    });
+                }
+            },
+            methods: {
+                formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    const date = new Date(dateStr);
+                    return date.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                formatText(text) {
+                    if (!text) return '';
+                    
+                    // 简单的文本格式化
+                    return text
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/`(.*?)`/g, '<code>$1</code>')
+                        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+                }
+            },
+            mounted() {
+                console.log('Telegram Channel Backup loaded with', this.posts.length, 'posts');
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
